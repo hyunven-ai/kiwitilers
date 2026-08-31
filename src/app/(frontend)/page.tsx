@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 
 export default function Home() {
   const containerRef = useRef(null);
@@ -26,23 +26,43 @@ export default function Home() {
     { title: "Custom Splashes", img: "/images/project_kitchen_1788157394915.jpg" },
   ];
 
+  // Hero Slider State
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const heroSlides = [
+    "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1600&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=1600&auto=format&fit=crop"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [heroSlides.length]);
+
   return (
     <div ref={containerRef} className="flex flex-col min-h-screen bg-[#fafafa]">
       
-      {/* 1. Asymmetrical Parallax Hero */}
+      {/* 1. Asymmetrical Parallax Hero with Slider */}
       <section className="relative w-full h-[100vh] flex items-center pt-20 overflow-hidden px-4 md:px-12 lg:px-24">
         <motion.div 
           style={{ y: y1, opacity }} 
-          className="absolute right-0 top-0 w-3/4 md:w-2/3 h-full z-0"
+          className="absolute right-0 top-0 w-3/4 md:w-2/3 h-full z-0 bg-slate-100"
         >
-          <div className="relative w-full h-full">
-            <Image 
-              src="/images/hero_bg_1788157349184.jpg" 
-              alt="Luxury Tiling" 
-              fill 
-              className="object-cover object-left"
-              priority
-            />
+          <div className="relative w-full h-full overflow-hidden">
+            <AnimatePresence mode="popLayout">
+              <motion.img
+                key={currentSlide}
+                src={heroSlides[currentSlide]}
+                alt="Luxury Tiling"
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+                className="absolute inset-0 w-full h-full object-cover object-left"
+              />
+            </AnimatePresence>
             {/* Soft gradient fade on the left edge of the image to blend into background */}
             <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#fafafa] to-transparent z-10" />
             <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#fafafa] to-transparent z-10" />

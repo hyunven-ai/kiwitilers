@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 
 export default function ServicesPage() {
   const services = [
-    { id: "bathroom-tiling", title: "Bathroom Tiling", desc: "Professional bathroom wall and floor tiling.", image: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?q=80&w=800&auto=format&fit=crop" },
-    { id: "kitchen-tiling", title: "Kitchen Tiling", desc: "Kitchen floors, walls and splashbacks.", image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop" },
-    { id: "floor-tiling", title: "Floor Tiling", desc: "Durable and precise floor tile installation.", image: "https://images.unsplash.com/photo-1581428982868-e410dd4fc568?q=80&w=800&auto=format&fit=crop" },
-    { id: "wall-tiling", title: "Wall Tiling", desc: "Professional wall tile installation.", image: "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=800&auto=format&fit=crop" },
-    { id: "outdoor-tiling", title: "Outdoor Tiling", desc: "Patios, balconies, outdoor areas and pathways.", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop" },
-    { id: "large-format-tiling", title: "Large Format Tiling", desc: "Installation of large-format and premium tiles.", image: "https://images.unsplash.com/photo-1600607686150-13f50dd77894?q=80&w=800&auto=format&fit=crop" },
-    { id: "tile-repair", title: "Tile Repair", desc: "Replacement and repair of damaged tiles.", image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop" },
-    { id: "regrouting", title: "Regrouting", desc: "Remove old grout and restore tile surfaces.", image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800&auto=format&fit=crop" }
+    { id: "bathroom-tiling", title: "Bathroom Tiling", desc: "Professional bathroom wall and floor tiling.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800&auto=format&fit=crop" },
+    { id: "kitchen-tiling", title: "Kitchen Tiling", desc: "Kitchen floors, walls and splashbacks.", image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop" },
+    { id: "floor-tiling", title: "Floor Tiling", desc: "Durable and precise floor tile installation.", image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop" },
+    { id: "wall-tiling", title: "Wall Tiling", desc: "Professional wall tile installation.", image: "https://images.unsplash.com/photo-1615873968403-89e068629265?q=80&w=800&auto=format&fit=crop" },
+    { id: "outdoor-tiling", title: "Outdoor Tiling", desc: "Patios, balconies, outdoor areas and pathways.", image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=800&auto=format&fit=crop" },
+    { id: "large-format-tiling", title: "Large Format Tiling", desc: "Installation of large-format and premium tiles.", image: "https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=800&auto=format&fit=crop" },
+    { id: "tile-repair", title: "Tile Repair", desc: "Replacement and repair of damaged tiles.", image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop" },
+    { id: "regrouting", title: "Regrouting", desc: "Remove old grout and restore tile surfaces.", image: "https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?q=80&w=800&auto=format&fit=crop" }
   ];
 
   return (
