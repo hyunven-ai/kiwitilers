@@ -35,9 +35,9 @@ export default function ServicesPage() {
                 <div className="p-8">
                   <h3 className="text-2xl font-semibold mb-3 text-slate-900 group-hover:text-blue-600 transition-colors">{service.title}</h3>
                   <p className="text-slate-600 mb-6">{service.desc}</p>
-                  <Button asChild variant="outline" className="rounded-full w-full">
-                    <Link href={`/services/${service.id}`}>Learn More</Link>
-                  </Button>
+                  <Link href={`/services/${service.id}`} className="inline-flex items-center justify-center rounded-full w-full px-4 py-2 border border-slate-200 text-slate-900 hover:bg-slate-100 transition-colors font-medium">
+                    Learn More
+                  </Link>
                 </div>
               </div>
             ))}
@@ -49,9 +49,9 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-outfit font-bold mb-6">Ready to start your project?</h2>
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto">Contact our team of experts today for a free, no-obligation quote.</p>
-          <Button size="lg" asChild className="bg-white text-blue-600 hover:bg-slate-50 rounded-full px-8">
-            <Link href="/quote">Request a Free Quote</Link>
-          </Button>
+          <Link href="/quote" className="inline-flex items-center justify-center bg-white text-blue-600 hover:bg-slate-50 rounded-full px-8 py-3 font-medium transition-colors">
+            Request a Free Quote
+          </Link>
         </div>
       </section>
     </div>
