@@ -1,0 +1,126 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      String   @default("EDITOR") // SUPERADMIN or EDITOR
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  content     String?
+  icon        String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  projects    Project[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  location    String
+  serviceType String
+  tileType    String?
+  description String
+  beforeImage String?
+  afterImage  String?
+  serviceId   String?
+  service     Service? @relation(fields: [serviceId], references: [id])
+  images      ProjectImage[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProjectImage {
+  id        String   @id @default(cuid())
+  url       String
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model QuoteRequest {
+  id             String   @id @default(cuid())
+  fullName       String
+  phoneNumber    String
+  email          String
+  location       String
+  serviceRequired String
+  propertyType   String
+  approxArea     String?
+  preferredDate  String?
+  description    String?
+  status         String   @default("NEW") // NEW, CONTACTED, QUOTED, APPROVED, COMPLETED, CANCELLED
+  estimatedValue Float?
+  notes          String?
+  images         QuoteImage[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model QuoteImage {
+  id             String       @id @default(cuid())
+  url            String
+  quoteRequestId String
+  quoteRequest   QuoteRequest @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  customerName String
+  projectType String?
+  rating      Int      @default(5)
+  content     String
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String
+  author      String?
+  image       String?
+  status      String   @default("DRAFT") // PUBLISHED, DRAFT
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ServiceArea {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
