@@ -19,19 +19,70 @@ export default function Home() {
   // For hover image reveal in services
   const [hoveredService, setHoveredService] = useState<number | null>(null);
 
-  const services = [
+  const defaultServices = [
     { title: "Residential Tiling", img: "/images/hero_bg_1788157349184.jpg" },
     { title: "Commercial Flooring", img: "/images/project_kitchen_1788157394915.jpg" },
     { title: "Bathroom Renovations", img: "/images/bathroom_after_1788157380612.jpg" },
     { title: "Custom Splashes", img: "/images/project_kitchen_1788157394915.jpg" },
   ];
 
+  const [services, setServices] = useState(defaultServices);
+
+  useEffect(() => {
+    fetch("/api/services")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          setServices(
+            json.data.slice(0, 4).map((s: any) => ({
+              title: s.title,
+              img: s.image || "/images/hero_bg_1788157349184.jpg",
+            }))
+          );
+        }
+      })
+      .catch((err) => console.error("Could not fetch services for hero:", err));
+  }, []);
+
+  // Latest Blog Posts for Homepage
+  const defaultBlogPosts = [
+    {
+      id: "trend-1",
+      title: "Top Tiling Trends in New Zealand for 2026",
+      slug: "top-tiling-trends-2026",
+      excerpt: "From ultra large format slabs to organic zellige textures and warm earthy tones.",
+      image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: "guide-1",
+      title: "How to Choose the Right Tiles for Your Bathroom",
+      slug: "how-to-choose-bathroom-tiles",
+      excerpt: "A comprehensive guide on slip ratings, moisture resistance, porcelain vs ceramic, and grout selection.",
+      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800&auto=format&fit=crop",
+      createdAt: new Date().toISOString(),
+    },
+  ];
+
+  const [latestPosts, setLatestPosts] = useState<any[]>(defaultBlogPosts);
+
+  useEffect(() => {
+    fetch("/api/blog?status=PUBLISHED&limit=3")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          setLatestPosts(json.data);
+        }
+      })
+      .catch((err) => console.error("Could not fetch blog posts for homepage:", err));
+  }, []);
+
   // Hero Slider State
   const [currentSlide, setCurrentSlide] = useState(0);
   const heroSlides = [
     "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1600&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=1600&auto=format&fit=crop"
+    "https://res.cloudinary.com/dzojrrwtr/image/upload/v1788593395/Commercial_Lobby_Flooring1_ynacbk.webp"
   ];
 
   useEffect(() => {
@@ -43,11 +94,11 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="flex flex-col min-h-screen bg-[#fafafa]">
-      
+
       {/* 1. Asymmetrical Parallax Hero with Slider */}
       <section className="relative w-full h-[100vh] flex items-center pt-20 overflow-hidden px-4 md:px-12 lg:px-24">
-        <motion.div 
-          style={{ y: y1, opacity }} 
+        <motion.div
+          style={{ y: y1, opacity }}
           className="absolute right-0 top-0 w-3/4 md:w-2/3 h-full z-0 bg-slate-100"
         >
           <div className="relative w-full h-full overflow-hidden">
@@ -71,17 +122,17 @@ export default function Home() {
 
         <div className="relative z-10 w-full md:w-2/3 mt-24">
           <div className="overflow-hidden mb-6">
-            <motion.h1 
+            <motion.h1
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
               className="text-7xl md:text-[9rem] leading-[0.85] font-outfit font-bold tracking-tighter text-slate-900 mix-blend-exclusion"
             >
-              CRAFTED<br/>SURFACES
+              CRAFTED<br />SURFACES
             </motion.h1>
           </div>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
@@ -90,8 +141,8 @@ export default function Home() {
             <p className="text-xl md:text-2xl text-slate-800 font-light max-w-md leading-relaxed bg-[#fafafa]/80 backdrop-blur-sm p-4 -ml-4">
               Bespoke tiling solutions bridging architectural intent with meticulous execution.
             </p>
-            <Link 
-              href="/quote" 
+            <Link
+              href="/quote"
               className="group relative inline-flex items-center gap-4 text-sm font-bold uppercase tracking-widest text-slate-900 border-b border-slate-900 pb-2 hover:border-transparent transition-colors"
             >
               Start a Project
@@ -104,7 +155,7 @@ export default function Home() {
       {/* 2. Editorial Text & Asymmetrical Images */}
       <section className="py-48 px-4 md:px-12 lg:px-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -121,21 +172,21 @@ export default function Home() {
           </motion.div>
 
           <div className="lg:col-span-7 relative h-[600px] w-full">
-             <motion.div 
-                style={{ y: y2 }}
-                className="absolute top-0 right-0 w-3/4 h-[400px] z-10"
-             >
-                <Image src="/images/bathroom_after_1788157380612.jpg" alt="Interior" fill className="object-cover" />
-             </motion.div>
-             <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="absolute bottom-0 left-0 w-2/3 h-[300px] z-20 border-8 border-[#fafafa]"
-             >
-                <Image src="/images/project_kitchen_1788157394915.jpg" alt="Detail" fill className="object-cover" />
-             </motion.div>
+            <motion.div
+              style={{ y: y2 }}
+              className="absolute top-0 right-0 w-3/4 h-[400px] z-10"
+            >
+              <Image src="/images/bathroom_after_1788157380612.jpg" alt="Interior" fill className="object-cover" />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.2 }}
+              className="absolute bottom-0 left-0 w-2/3 h-[300px] z-20 border-8 border-[#fafafa]"
+            >
+              <Image src="/images/project_kitchen_1788157394915.jpg" alt="Detail" fill className="object-cover" />
+            </motion.div>
           </div>
         </div>
       </section>
@@ -152,7 +203,7 @@ export default function Home() {
 
           <div className="relative" onMouseLeave={() => setHoveredService(null)}>
             {services.map((service, index) => (
-              <Link 
+              <Link
                 key={index}
                 href="/services"
                 className="group block border-b border-slate-800 py-12 relative z-20"
@@ -171,7 +222,7 @@ export default function Home() {
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ 
+                  animate={{
                     opacity: hoveredService === index ? 1 : 0,
                     scale: hoveredService === index ? 1 : 0.8,
                   }}
@@ -186,12 +237,77 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Giant CTA */}
+      {/* 4. Journal & Latest Insights */}
+      {latestPosts.length > 0 && (
+        <section className="py-32 px-4 md:px-12 lg:px-24 bg-white border-b border-slate-100">
+          <div className="container mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 pb-8 border-b border-slate-200">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-3 block font-sans">
+                  The Journal
+                </span>
+                <h2 className="text-4xl md:text-6xl font-outfit font-bold text-slate-900 tracking-tight">
+                  Insights & Guides.
+                </h2>
+              </div>
+              <Link
+                href="/blog"
+                className="mt-6 md:mt-0 text-sm font-bold uppercase tracking-wider text-slate-900 hover:text-blue-600 transition-colors inline-flex items-center gap-2"
+              >
+                <span>Explore All Articles</span>
+                <span>→</span>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {latestPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/blog/${post.slug}`}
+                  className="group flex flex-col bg-slate-50 rounded-3xl overflow-hidden border border-slate-200/80 hover:shadow-xl hover:border-slate-300 transition-all duration-300"
+                >
+                  <div className="aspect-[16/10] bg-slate-200 relative overflow-hidden">
+                    <img
+                      src={post.image || "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800&auto=format&fit=crop"}
+                      alt={post.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-8 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="text-xs text-slate-400 mb-3">
+                        {new Date(post.createdAt).toLocaleDateString("en-NZ", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </div>
+                      <h3 className="text-xl font-outfit font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-3 line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-slate-600 text-xs leading-relaxed line-clamp-2 mb-6">
+                        {post.excerpt || post.content.substring(0, 120) + "..."}
+                      </p>
+                    </div>
+
+                    <div className="text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                      <span>Read Article</span>
+                      <span>→</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 5. Giant CTA */}
       <section className="py-48 px-4 text-center">
         <h2 className="text-6xl md:text-9xl font-outfit font-bold text-slate-900 tracking-tighter mb-12 uppercase">
-          Let's<br/>Talk.
+          Let's<br />Talk.
         </h2>
-        <Link 
+        <Link
           href="/quote"
           className="inline-block bg-slate-900 text-white rounded-full px-12 py-6 text-xl font-medium hover:bg-blue-600 transition-colors duration-500 hover:scale-105 transform"
         >

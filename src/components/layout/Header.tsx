@@ -18,6 +18,7 @@ export default function Header() {
         <nav className="hidden md:flex gap-8">
           <Link href="/services" className="text-sm font-outfit font-semibold tracking-wide uppercase text-slate-600 hover:text-slate-900 transition-colors">Services</Link>
           <Link href="/projects" className="text-sm font-outfit font-semibold tracking-wide uppercase text-slate-600 hover:text-slate-900 transition-colors">Projects</Link>
+          <Link href="/blog" className="text-sm font-outfit font-semibold tracking-wide uppercase text-slate-600 hover:text-slate-900 transition-colors">Blog</Link>
           <Link href="/about" className="text-sm font-outfit font-semibold tracking-wide uppercase text-slate-600 hover:text-slate-900 transition-colors">About</Link>
           <Link href="/faq" className="text-sm font-outfit font-semibold tracking-wide uppercase text-slate-600 hover:text-slate-900 transition-colors">FAQ</Link>
           <Link href="/contact" className="text-sm font-outfit font-semibold tracking-wide uppercase text-slate-600 hover:text-slate-900 transition-colors">Contact</Link>
@@ -61,6 +62,7 @@ export default function Header() {
             <nav className="flex flex-col px-4 pt-2 pb-6 space-y-4">
               <Link href="/services" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-slate-700 hover:text-blue-600">Services</Link>
               <Link href="/projects" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-slate-700 hover:text-blue-600">Projects</Link>
+              <Link href="/blog" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-slate-700 hover:text-blue-600">Blog</Link>
               <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-slate-700 hover:text-blue-600">About</Link>
               <Link href="/faq" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-slate-700 hover:text-blue-600">FAQ</Link>
               <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-slate-700 hover:text-blue-600">Contact</Link>

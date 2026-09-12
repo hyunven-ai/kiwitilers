@@ -1,37 +1,547 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  Wrench,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  Layers,
+  Image as ImageIcon,
+  RefreshCw,
+} from "lucide-react";
+
+interface Service {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  content?: string | null;
+  icon?: string | null;
+  image?: string | null;
+  _count?: {
+    projects: number;
+  };
+}
 
 export default function ServicesPage() {
-  const services = [
-    { id: 1, title: "Bathroom Tiling", active: true },
-    { id: 2, title: "Kitchen Tiling", active: true },
-    { id: 3, title: "Floor Tiling", active: true },
-    { id: 4, title: "Wall Tiling", active: true },
-    { id: 5, title: "Outdoor Tiling", active: true },
-  ];
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Modals
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [deleteConfirmService, setDeleteConfirmService] = useState<Service | null>(null);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    title: "",
+    slug: "",
+    description: "",
+    content: "",
+    icon: "🛠️",
+    image: "",
+  });
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/services");
+      const json = await res.json();
+      if (json.success) {
+        setServices(json.data);
+      }
+    } catch (err) {
+      console.error("Error fetching services:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const openAddModal = () => {
+    setFormData({
+      title: "",
+      slug: "",
+      description: "",
+      content: "",
+      icon: "🛠️",
+      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800&auto=format&fit=crop",
+    });
+    setIsAddModalOpen(true);
+  };
+
+  const openEditModal = (service: Service) => {
+    setEditingService(service);
+    setFormData({
+      title: service.title,
+      slug: service.slug,
+      description: service.description,
+      content: service.content || "",
+      icon: service.icon || "🛠️",
+      image: service.image || "",
+    });
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const title = e.target.value;
+    const slug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    setFormData({ ...formData, title, slug });
+  };
+
+  const handleCreateService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setSaving(true);
+      const res = await fetch("/api/services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast("Service added successfully");
+        setIsAddModalOpen(false);
+        fetchServices();
+      } else {
+        alert(json.error || "Failed to create service");
+      }
+    } catch (err) {
+      alert("Error saving service");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdateService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingService) return;
+
+    try {
+      setSaving(true);
+      const res = await fetch(`/api/services/${editingService.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast("Service updated successfully");
+        setEditingService(null);
+        fetchServices();
+      } else {
+        alert(json.error || "Failed to update service");
+      }
+    } catch (err) {
+      alert("Error updating service");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteService = async (id: string) => {
+    try {
+      setSaving(true);
+      const res = await fetch(`/api/services/${id}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast("Service deleted successfully");
+        setDeleteConfirmService(null);
+        fetchServices();
+      } else {
+        alert(json.error || "Failed to delete service");
+      }
+    } catch (err) {
+      alert("Error deleting service");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-900">Services Management</h1>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">+ Add Service</Button>
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-slate-700 animate-in fade-in slide-in-from-bottom-5">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+          <span className="text-sm font-medium">{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Services Management</h1>
+          <p className="text-sm text-slate-500">
+            Manage your service offerings displayed on the website and quote form.
+          </p>
+        </div>
+        <button
+          onClick={openAddModal}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-sm shadow-blue-500/20 transition-all"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add New Service</span>
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services.map((service) => (
-          <div key={service.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between h-40">
-            <div className="flex justify-between items-start">
-              <h3 className="font-semibold text-lg text-slate-900">{service.title}</h3>
-              <span className={`text-xs px-2 py-1 rounded-full ${service.active ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                {service.active ? 'Active' : 'Inactive'}
-              </span>
+      {/* Services Grid */}
+      {loading ? (
+        <div className="p-16 text-center text-slate-400 bg-white rounded-2xl border border-slate-100">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-blue-600" />
+          <p className="text-sm">Loading services from database...</p>
+        </div>
+      ) : services.length === 0 ? (
+        <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center">
+          <Wrench className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+          <h3 className="text-lg font-semibold text-slate-800">No Services Found</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-6">
+            Get started by adding your first specialized tiling service.
+          </p>
+          <button
+            onClick={openAddModal}
+            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-xl"
+          >
+            Add Service
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((service) => (
+            <div
+              key={service.id}
+              className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden flex flex-col hover:shadow-md transition-all group"
+            >
+              {/* Image Preview */}
+              <div className="h-44 bg-slate-100 relative overflow-hidden">
+                {service.image ? (
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-400">
+                    <ImageIcon className="w-8 h-8 opacity-40" />
+                  </div>
+                )}
+                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-800 shadow-sm flex items-center gap-1.5">
+                  <span>{service.icon || "🛠️"}</span>
+                  <span className="font-mono text-[11px] text-slate-600">/{service.slug}</span>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                    {service.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-2 line-clamp-3 leading-relaxed">
+                    {service.description}
+                  </p>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400 font-medium">
+                    {service._count?.projects || 0} Projects linked
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => openEditModal(service)}
+                      className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit Service"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirmService(service)}
+                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete Service"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add Service Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start pb-4 border-b border-slate-100 mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Add New Service</h3>
+                <p className="text-xs text-slate-500">Publish a new tiling offering to the website.</p>
+              </div>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateService} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Service Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={handleTitleChange}
+                  placeholder="e.g. Balcony Waterproofing & Tiling"
+                  className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">URL Slug *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    placeholder="balcony-tiling"
+                    className="w-full p-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Icon / Emoji</label>
+                  <input
+                    type="text"
+                    value={formData.icon}
+                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                    placeholder="e.g. 🏢 or 🚿"
+                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Image URL</label>
+                <input
+                  type="text"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                {formData.image && (
+                  <div className="mt-2 h-24 rounded-xl overflow-hidden border border-slate-200">
+                    <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Short Description *</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Summary shown on cards and homepage..."
+                  className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Detailed Content (Optional)</label>
+                <textarea
+                  rows={3}
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  placeholder="Full scope of work, technical specifications, materials used..."
+                  className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Create Service"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Service Modal */}
+      {editingService && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start pb-4 border-b border-slate-100 mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Edit Service</h3>
+                <p className="text-xs text-slate-500">Updating #{editingService.slug}</p>
+              </div>
+              <button
+                onClick={() => setEditingService(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateService} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Service Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">URL Slug</label>
+                  <input
+                    type="text"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    className="w-full p-2.5 text-sm font-mono rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Icon / Emoji</label>
+                  <input
+                    type="text"
+                    value={formData.icon}
+                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                    className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Image URL</label>
+                <input
+                  type="text"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                {formData.image && (
+                  <div className="mt-2 h-24 rounded-xl overflow-hidden border border-slate-200">
+                    <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Short Description *</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Detailed Content</label>
+                <textarea
+                  rows={3}
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  className="w-full p-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingService(null)}
+                  className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Update Service"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmService && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center">
+            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">Delete Service?</h3>
+            <p className="text-xs text-slate-500 mt-1 mb-6">
+              Are you sure you want to delete <span className="font-semibold text-slate-700">"{deleteConfirmService.title}"</span>?
+            </p>
             <div className="flex gap-3">
-              <Button variant="outline" size="sm" className="flex-1">Edit</Button>
-              <Button variant="outline" size="sm" className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50">Delete</Button>
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmService(null)}
+                className="flex-1 py-2 text-sm border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteService(deleteConfirmService.id)}
+                disabled={saving}
+                className="flex-1 py-2 text-sm bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-sm"
+              >
+                {saving ? "Deleting..." : "Yes, Delete"}
+              </button>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
